@@ -14,7 +14,7 @@ using namespace std;
 #define  MAX(x, y)  ( ((x) > (y)) ? (x) : (y) )//取最大值
 #define  MIN(x, y)  ( ((x) < (y)) ? (x) : (y) )//取最小值
 
-#define  at(x) values.at(x)
+#define  at(x) values.at(x)                    //取数组中数
 
 int main(int argc, char *argv[])
 {
@@ -30,27 +30,28 @@ int main(int argc, char *argv[])
     values<<WORD_LO(test);
     qDebug("原始值:0x%x==%d",test,test);       //显示原始数值
     qDebug("0x%x==%d 0x%x==%d 0x%x==%d 0x%x==%d",//显示各8位数值
-           values.at(0),values.at(0),values.at(1),values.at(1),
-           values.at(2),values.at(2),values.at(3),values.at(3));
+           at(0),at(0),at(1),at(1),
+           at(2),at(2),at(3),at(3));
 
     //比较各位数据
     qDebug("最高8位和次高8位最大值：0x%x(%d)"       //比较高位大小
-           ,MAX(values.at(0),values.at(1)),MAX(values.at(0),values.at(1)));
+           ,MAX(at(0),at(1)),MAX(at(0),at(1)));
     qDebug("最低8位和次低8位最大值：0x%x(%d)"       //比较低位大小
-           ,MIN(values.at(2),values.at(3)),MAX(values.at(2),values.at(3)));
+           ,MIN(at(2),at(3)),MAX(at(2),at(3)));
+
 
     //重新组合数据
-    unsigned int new_test=values.at(1)
-                          +(values.at(3)<<8)
-                          +(values.at(0)<<16)
-                          +(values.at(2)<<24);
+    unsigned int new_test=at(1)
+                          +(at(3)<<8)
+                          +(at(0)<<16)
+                          +(at(2)<<24);
     qDebug("重新组合后数值:0x%x(%d)",new_test,new_test);
 
     //排序数组
     qDebug("排序前：（%x,%x,%x,%x）"               //显示原序列
-           ,values.at(0),values.at(1),values.at(2),values.at(3));
+           ,at(0),at(1),at(2),at(3));
     sort(values.rbegin(),values.rend(),qLess<qint8>());
     qDebug("排序后：（%x,%x,%x,%x）"               //显示排序后序列
-           ,values.at(0),values.at(1),values.at(2),values.at(3));
+           ,at(0),at(1),at(2),at(3));
     return a.exec();
 }
