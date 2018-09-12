@@ -48,10 +48,10 @@ int main(int argc, char *argv[])
     qDebug("重新组合后数值:0x%x(%d)",new_test,new_test);
 
     //排序数组
-    qDebug("排序前：（%x,%x,%x,%x）"               //显示原序列
+    qDebug("排序前：（%d,%d,%d,%d）"               //显示原序列
            ,at(0),at(1),at(2),at(3));
-    sort(values.rbegin(),values.rend(),qLess<qint8>());
-    qDebug("排序后：（%x,%x,%x,%x）"               //显示排序后序列
+    sort(values.begin(),values.end(),greater<qint8>());
+    qDebug("排序后：（%d,%d,%d,%d）"               //显示排序后序列
            ,at(0),at(1),at(2),at(3));
     return a.exec();
 }
