@@ -12,7 +12,7 @@ using namespace std;
  *                  firstly I want to use qdebug to output qstring,unsolved
  *                  then cout,text in chaos,change code to GBK can solve this
  *                  but qdebug still can't.
- *                  finally i figure out that encode file with UTF-8 can output
+ *                  finaly i figure out that encode file with UTF-8 can output
  *                  with qdebug.
 */
 
