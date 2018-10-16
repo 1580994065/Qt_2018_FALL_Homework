@@ -1,9 +1,8 @@
 #include <QDebug>
-#include <QVector>
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QFile>
-
+#include <QList>
 namespace SK {
 enum SortKind{
     col01    =   0x00000001<<0,         //!< 第1列
@@ -41,17 +40,18 @@ enum SortKind{
 };
 }
 
-#define mycmp(a) (d1.stu_data.at(a)>d2.stu_data.at(a))?  1:0
+#define mycmp(a) (d1.stu_data.at(a-1)>=d2.stu_data.at(a-1))?  1:0
 
 typedef struct{
     QStringList stu_data;
 } studData;
 
 QDebug operator<< (QDebug d, const studData &data) {
-    for(int i=1;i<=data.stu_data.size();i++)
+    for(int i=0;i<data.stu_data.size();i++)
     {
-        d<<data.stu_data.at(i) ;
+        d<<data.stu_data.at(i);
     }
+    qDebug()<<"";
     return d;
 }
 
@@ -114,6 +114,7 @@ public:
     ScoreSorter(QString dataFile);
     void readFile();
     void doSort();
+    void display();
 private:
     QString file_open;
     QList<studData>   data;
@@ -133,14 +134,17 @@ void ScoreSorter::readFile()
        }
     studData nowdata;
     QString titile_t(mfile.readLine());
-        title = titile_t.split(" ");
+        title = titile_t.split(" ", QString::SkipEmptyParts);
     while(!mfile.atEnd()) {
         QString str(mfile.readLine());
-        nowdata.stu_data = str.split(" ");
-        data.push_back(nowdata);
+        nowdata.stu_data = str.split(" ", QString::SkipEmptyParts);
+        if((nowdata.stu_data).last() == "\n") nowdata.stu_data.removeLast();
+        if(nowdata.stu_data.size()==0) continue;
+        data.append(nowdata);        
     }
     mfile.close();
-    qDebug()<<data;
+    qDebug()<<title.count();
+    //display();
 }
 /**
  * @brief ScoreSorter::doSort
@@ -148,19 +152,23 @@ void ScoreSorter::readFile()
  */
 void ScoreSorter::doSort()
 {
-    for(int i=1;i<data.size();i++)
+    for(int i=1;i<title.count();i++)
         {
             myCmp cmp_temp(i-1);    //数字从左移0位开始
             std::sort(data.begin(),data.end(),cmp_temp);
-            qDebug()<<"排序后输出，当前排序第 "<<i+1 <<" 列：";
+            qDebug()<<"排序后输出，当前排序第 "<<i <<" 列：";
             qDebug()<<title;
-            for(int i=0;i<data.size();i++)
-            {
-                qDebug()<<data.at(i).stu_data;
-            }
+            display();
             qDebug()<<"------------------------------------------------\n";
+    }
+}
 
-        }
+void ScoreSorter::display()
+{
+    for(int i=0;i<data.size();i++)
+    {
+        qDebug()<<data.at(i);
+    }
 }
 
 
@@ -182,6 +190,7 @@ int main()
     ScoreSorter s(datafile);
     s.readFile();
     s.doSort();
+    char a=getchar();
     return 0;
 }
 
