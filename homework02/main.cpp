@@ -42,14 +42,16 @@ enum SortKind{
 
 #define mycmp(a) (d1.stu_data.at(a-1)>=d2.stu_data.at(a-1))?  1:0
 
+//存储数据，每行存储在qstringlist
 typedef struct{
     QStringList stu_data;
 } studData;
 
+//使qdebug可输出studata结构体
 QDebug operator<< (QDebug d, const studData &data) {
     for(int i=0;i<data.stu_data.size();i++)
     {
-        d<<data.stu_data.at(i);
+        d.noquote()<<data.stu_data.at(i);//无引号输出
     }
     qDebug()<<"";
     return d;
@@ -64,6 +66,7 @@ private:
     int currentColumn;
 };
 
+//重载mycmp
 bool myCmp::operator()(const studData &d1, const studData &d2)
 {
     bool result = false;
@@ -104,7 +107,6 @@ bool myCmp::operator()(const studData &d1, const studData &d2)
     default:;break;
     }
     return result;
-
 }
 
 
@@ -112,12 +114,13 @@ class ScoreSorter
 {
 public:
     ScoreSorter(QString dataFile);
-    void readFile();
-    void doSort();
-    void display();
+    void readFile();//从文件读取数据
+    void doSort();//对数据进行排序
+    void display();//输出所有数据
+    void output_file(int line);//输出数据到文件
 private:
-    QString file_open;
-    QList<studData>   data;
+    QString file_open;//打开文件的地址
+    QList<studData>   data;//存储每行数据
     QStringList    title;   //数据表头
 };
 
@@ -128,18 +131,26 @@ ScoreSorter::ScoreSorter(QString dataFile){
 
 void ScoreSorter::readFile()
 {
+    //打开文件
     QFile mfile(file_open);
     if(!mfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qDebug()<<"Can't open the file!"<<endl;
        }
-    studData nowdata;
+    studData nowdata;//暂存每行数据
     QString titile_t(mfile.readLine());
-        title = titile_t.split(" ", QString::SkipEmptyParts);
-    while(!mfile.atEnd()) {
+        //读取表头
+        title = titile_t.split(" ", QString::SkipEmptyParts);//对数据进行分割
+        //读取每行数据
+        while(!mfile.atEnd()) {
         QString str(mfile.readLine());
         nowdata.stu_data = str.split(" ", QString::SkipEmptyParts);
-        if((nowdata.stu_data).last() == "\n") nowdata.stu_data.removeLast();
-        if(nowdata.stu_data.size()==0) continue;
+        //去除数据中的回车符
+        if((nowdata.stu_data).last() == "\n")
+        {
+                nowdata.stu_data.removeLast();
+        }
+        if(nowdata.stu_data.size()==0)
+                     continue;
         data.append(nowdata);        
     }
     mfile.close();
@@ -152,17 +163,23 @@ void ScoreSorter::readFile()
  */
 void ScoreSorter::doSort()
 {
+    //对每列循环排序
     for(int i=1;i<title.count();i++)
         {
             myCmp cmp_temp(i-1);    //数字从左移0位开始
             std::sort(data.begin(),data.end(),cmp_temp);
             qDebug()<<"排序后输出，当前排序第 "<<i <<" 列：";
-            qDebug()<<title;
+            qDebug().noquote()<<title;
             display();
             qDebug()<<"------------------------------------------------\n";
+            output_file(i);//输出到文件
     }
 }
 
+/**
+ * @brief ScoreSorter::display
+ * 输出整个数据
+*/
 void ScoreSorter::display()
 {
     for(int i=0;i<data.size();i++)
@@ -171,10 +188,28 @@ void ScoreSorter::display()
     }
 }
 
-
-void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+void ScoreSorter::output_file(int line)
 {
-    // 自定义qDebug
+    QFile file("sorted_"+file_open);
+    //以追加方式打开
+    file.open(QIODevice::ReadWrite | QIODevice::Append);
+    QTextStream stream(&file);
+    stream.setCodec("UTF-8");
+    stream<<QString("排序后输出，当前排序第").toUtf8()<<line <<QString(" 列：").toUtf8()<<"\n";
+    //输出表头
+    for(int i=0;i<title.count();i++)
+        stream<<title.at(i)<<"\t";
+    stream<<'\n';
+    //输出数据
+    for(int i=0;i<data.count();i++)
+    {
+        for(int j=0;j<title.count()-1;j++)
+        {
+            stream<<data.at(i).stu_data.at(j)<<"\t"<<"\t";
+        }
+        stream<<"\n";
+    }
+    file.close();
 }
 
 int main()
@@ -190,7 +225,7 @@ int main()
     ScoreSorter s(datafile);
     s.readFile();
     s.doSort();
-    char a=getchar();
+    char stop=getchar();//使输出暂时停止
     return 0;
 }
 
