@@ -1,0 +1,39 @@
+信号和槽
+
+声明信号
+signals：
+	void xxx(xxx)
+信号没有返回值
+类申明开始要有Q_OBJECT宏
+
+emit xxx(xx);	发射信号
+
+槽函数的申明
+public/private/protected slots:
+	void xxx(参数类型要一样)
+	
+链接用connect();//使用指针
+
+绘图
+通过paintEvent虚函数重载定义
+首先创建QPainter对象，绘制，最后销毁
+
+QPainter painter(this);
+	painter.drawline();
+	
+addstretch加弹簧
+
+QmainWindow本身已经有布局，不能再加布局
+可以加子类Qwidge/QFrame，再在子类中加布局
+
+Qimage img("路径:/user")
+painter.drawimage(&img)
+
+doxygen
+
+元对象系统信号与槽
+
+二维绘制
+信号响应
+
+

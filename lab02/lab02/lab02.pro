@@ -31,8 +31,13 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    centerframe.h \
-    drawwidget.h
+    drawwidget.h \
+    common.h \
+    centerframe.h
 
-FORMS += \
-        mainwindow.ui
+FORMS +=
+
+DISTFILES +=
+
+RESOURCES += \
+    resource/img.qrc
