@@ -132,6 +132,7 @@ void DrawWidget::clear ()
 {
     // 清除绘图内容，简单的用背景色填充整个画布即可
     pix->fill(BACKGROUND_COLOR);
+    imgmap->fill(BACKGROUND_COLOR);
     update ();
 }
 
