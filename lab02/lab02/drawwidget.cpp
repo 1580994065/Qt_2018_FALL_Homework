@@ -261,6 +261,19 @@ void DrawWidget::drawShape(const QPointF ptStart,const QPointF ptEnd,const ST::S
         painter.drawPolygon(points);
     }
         break;
+    case ST::Diamond:{
+       //棱形的四个顶点
+        QPointF point1(ptStart.x(),(ptStart.y()+ptEnd.y())/2);
+        QPointF point2((ptStart.x()+ptEnd.x())/2,ptEnd.y());
+        QPointF point3(ptEnd.x(),(ptStart.y()+ptEnd.y())/2);
+        QPointF point4((ptStart.x()+ptEnd.x())/2,ptStart.y());
+        QVector<QPointF> lines;
+        lines<<point1<<point2<<point2<<point3<<point3<<point4<<point4<<point1;
+        //画菱形
+        painter.drawPolygon(lines);
+    }
+        break;
+
     case ST::Text:{
 
         if(drawnText.isEmpty()){

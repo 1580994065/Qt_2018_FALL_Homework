@@ -43,7 +43,7 @@ class CenterFrame : public QFrame
      void on_btnTextClicked();
      void on_edtTextEdited(const QString &text);
      void on_btnImageShow();
-
+     void on_btnDiamondClicked();
  private:
      QVBoxLayout* vLayout;
      QHBoxLayout* hLayout;
@@ -55,8 +55,9 @@ class CenterFrame : public QFrame
      QPushButton* btnTriangle;
      QPushButton* btnText;
      QPushButton* btnImg;
+     QPushButton* btnDiamond;
      QLineEdit* edtText;
-     QString imagFile=":/1.jpg";
+     QString imagFile=":/1.jpg";//默认图片地址
 
  };
 

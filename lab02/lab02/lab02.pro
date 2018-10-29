@@ -26,8 +26,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    centerframe.cpp \
-    drawwidget.cpp
+    drawwidget.cpp \
+    centerframe.cpp
 
 HEADERS += \
         mainwindow.h \

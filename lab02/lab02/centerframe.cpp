@@ -118,6 +118,24 @@ void CenterFrame::createUserCommandArea()
     connect(btnText,&QPushButton::clicked,
             this,&CenterFrame::on_btnTextClicked);
 
+    // 菱形按钮
+      btnDiamond = new QPushButton(group);
+      btnDiamond->setToolTip("绘制菱形");
+      btnDiamond->setCheckable(true);
+      btnDiamond->setIconSize(p.size());
+
+      p.fill(BACKGROUND_COLOR);
+      connect(btnDiamond,&QPushButton::clicked,
+              this,&CenterFrame::on_btnDiamondClicked);
+      QPointF pt_1(3,p.size().height()/2);
+      QPointF pt_2(p.size().width()/2,1);
+      QPointF pt_3(p.size().width()-3,p.size().height()/2);
+      QPointF pt_4(p.size().width()/2,p.size().height()-1);
+      QVector<QPointF> pt_s;
+      pt_s<<pt_1<<pt_2<<pt_2<<pt_3<<pt_3<<pt_4<<pt_4<<pt_1;
+      painter.drawPolygon(pt_s);
+      btnDiamond->setIcon (QIcon(p));
+
     //图片按钮
     btnImg =new QPushButton(group);
     QPixmap imgmap(p.width(),p.height());//与按钮同大小
@@ -143,7 +161,8 @@ void CenterFrame::createUserCommandArea()
     gridLayout->addWidget(btnTriangle,1,0);
     gridLayout->addWidget(btnLine,1,1);
     gridLayout->addWidget(btnText,2,0);
-    gridLayout->addWidget(btnImg,2,1);
+    gridLayout->addWidget(btnDiamond,2,1);
+    gridLayout->addWidget(btnImg,3,0);
     gridLayout->setMargin(3);
     gridLayout->setSpacing(3);
     group->setLayout(gridLayout);
@@ -218,6 +237,7 @@ void CenterFrame::updateButtonStatus()
     btnEllipse->setChecked(false);
     btnText->setChecked(false);
     edtText->setVisible(false);
+    btnDiamond->setChecked(false);
 
     // 然后根据设置的绘图类型重新切换按键状态
     switch (drawWidget->shapeType()) {
@@ -237,6 +257,9 @@ void CenterFrame::updateButtonStatus()
         btnText->setChecked(true);
         edtText->setVisible(true);      // 使编辑框可见
         edtText->setFocus();            // 编辑框获得输入焦点
+        break;
+    case ST::Diamond:
+        btnDiamond->setChecked(true);
         break;
     default:
         break;
@@ -327,6 +350,17 @@ void CenterFrame::on_btnImageShow()
     if(btnImg->isChecked()){
 
         drawWidget->drawImag(imagFile);
+        updateButtonStatus();
+    }else{
+        drawWidget->setShapeType(ST::None);
+    }
+}
+
+void CenterFrame::on_btnDiamondClicked()
+{
+    if(btnDiamond->isChecked()){
+        drawWidget->setShapeType(ST::Diamond);
+        //qDebug()<<"ok";
         updateButtonStatus();
     }else{
         drawWidget->setShapeType(ST::None);
