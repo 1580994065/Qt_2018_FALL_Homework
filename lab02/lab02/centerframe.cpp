@@ -365,6 +365,7 @@ void CenterFrame::on_btnDiamondClicked()
     }else{
         drawWidget->setShapeType(ST::None);
     }
+
 }
 
 void CenterFrame::selectFile()
@@ -372,6 +373,10 @@ void CenterFrame::selectFile()
     imagFile = QFileDialog::getOpenFileName(this, tr("Open File"),
                                      "/home",
                                      tr("Images (*.png *.xpm *.jpg)"));
+    if(imagFile=="")
+    {
+        imagFile=":/1.jpg";//用户取消则返回默认值
+    }
     int btnWidth=32;
     int btnHeight=32;
     // 准备绘制按钮图标

@@ -101,15 +101,16 @@ void DrawWidget::paintEvent (QPaintEvent *)
     //painter.setCompositionMode(QPainter::CompositionMode_Destination);
     QRect img_rect=QRect(this->width()/4,this->height()/4,this->width()/2,this->height()/2);
 
-    QImage mask=pix->toImage();
-    QImage back=imgmap->toImage();
-    painter.drawImage(0,0,mask);
-    painter.drawImage(img_rect,back);
+//    QImage mask=pix->toImage();
+//    QImage back=imgmap->toImage();
 
-    //    painter.drawPixmap (QPoint(0, 0), *pix);
-//    //显示图片
-//    painter.drawPixmap(this->width()/4,this->height()/4,this->width()/2,this->height()/2,*imgmap);
+//    painter.drawPixmap(img_rect,imgmap);
+//    painter.drawPixmap(0,0,pix);
 
+    //显示图片
+   painter.drawPixmap(this->width()/4,this->height()/4,this->width()/2,this->height()/2,*imgmap);
+    painter.drawPixmap (QPoint(0, 0), *pix);
+    //图片在后，线条在前，注意要将背景设置透明
 }
 
 
@@ -118,7 +119,7 @@ void DrawWidget::resizeEvent (QResizeEvent *event)
     if(height () > pix->height () || width() > pix->width ())
     {
         QPixmap *newPix = new QPixmap(size());
-        newPix->fill (BACKGROUND_COLOR);
+        newPix->fill (Qt::transparent);
         QPainter p(newPix);
         p.drawPixmap (QPoint(0, 0), *pix);
         delete pix;     //一定要删除原来的对象，否则会出现内存泄漏
@@ -131,8 +132,8 @@ void DrawWidget::resizeEvent (QResizeEvent *event)
 void DrawWidget::clear ()
 {
     // 清除绘图内容，简单的用背景色填充整个画布即可
-    pix->fill(BACKGROUND_COLOR);
-    imgmap->fill(BACKGROUND_COLOR);
+    pix->fill(Qt::transparent);
+    imgmap->fill(Qt::transparent);
     update ();
 }
 
