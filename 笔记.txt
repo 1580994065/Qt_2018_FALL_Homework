@@ -23,6 +23,10 @@ QPainter painter(this);
 	
 addstretch加弹簧
 
+绘图
+绘图要自己定义一下paintevent，重载虚函数
+调用updata会刷新屏幕，相当于调用paintevevt
+
 QmainWindow本身已经有布局，不能再加布局
 可以加子类Qwidge/QFrame，再在子类中加布局
 
