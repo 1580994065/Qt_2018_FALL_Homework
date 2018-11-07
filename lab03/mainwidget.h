@@ -49,7 +49,7 @@ private slots:
 private:
     Ui::mainWidget *ui;
     dataWorker* worker;
-
+    dataWorker* worker_pm2;
 
 };
 

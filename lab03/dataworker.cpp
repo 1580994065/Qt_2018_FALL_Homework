@@ -43,6 +43,7 @@ void dataWorker::setRequestDate(QString newDate)
     _requestDate = newDate.replace("-","");
 }
 
+//将index与城市拼音相对应
 void dataWorker::setRequestLocation(int index)
 {
     switch(index)
@@ -52,6 +53,7 @@ void dataWorker::setRequestLocation(int index)
     case 2: _requestLocation="nanjing";break;
     case 3: _requestLocation="shanghai";break;
     case 4: _requestLocation="shenzheng";break;
+    case 5: _requestLocation="beijing";break;
     default:break;
     }
 }

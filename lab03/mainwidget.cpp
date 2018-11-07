@@ -2,7 +2,7 @@
 #include "ui_mainwidget.h"
 #include <dataworker.h>
 #include <QDateTime>
-
+#include <QDate>
 
 
 /**
@@ -20,7 +20,7 @@ mainWidget::mainWidget(QWidget *parent) :
 
     initComboMonth();
 
-    resetChart("南京气温");
+    resetChart("请进行设置");
     addLineSeries(ui->chartview->chart(),"",Qt::red);
 
     worker = new dataWorker(this);
@@ -28,6 +28,12 @@ mainWidget::mainWidget(QWidget *parent) :
     connect(worker,&dataWorker::dataParseError,this,&mainWidget::on_dataError);
     connect(worker,&dataWorker::httpRequestError,this,&mainWidget::on_dataError);
 
+    //爬取pm2.5数据
+    /*worker_pm2=new dataWorker(this);
+    connect(worker_pm2,&dataWorker::dataParseFinished,this,&mainWidget::updateDataChart_pm2);
+    connect(worker_pm2,&dataWorker::dataParseError,this,&mainWidget::on_dataError);
+    connect(worker_pm2,&dataWorker::httpRequestError,this,&mainWidget::on_dataError);
+    */
 }
 
 mainWidget::~mainWidget()
@@ -41,13 +47,17 @@ mainWidget::~mainWidget()
  */
 void mainWidget::initComboMonth()
 {
+    QDate date=QDate::currentDate();
+    //QDate date_begin=QDate::addMonths(-10);
     QStringList month;
     for(int i=10;i>0;i--){
 		// 此处为固定时间和日期
 		// 请使用QDate/QDateTime将其修正，
 		// 用户运行前一个月开始连续10个月的"年-月"
 		// (如2018-02、2018-01、2017-12...，假设当前日期为2018年3月12日)
-        month<<QString("2016-%1").arg(i,2,10,QChar('0'));
+        date=date.addMonths(-1);
+//        qDebug()<<date.month();
+        month<<QString("%1-%2").arg(date.year()).arg(date.month(),2,10,QChar('0'));
     }
     ui->comboMonth->clear();
     ui->comboMonth->addItems(month);
@@ -244,9 +254,9 @@ void mainWidget::on_btnStart_clicked()
     QString chartTitle = "";
     if(ui->comboMonth->count()>0){
         chartTitle = ui->comboMonth->currentText().replace("-","年");
-        chartTitle.append("月 南京气温");
+        chartTitle.append(QString("月 %1气温").arg(ui->comboLocation->currentText()));
     }else{
-        chartTitle="南京气温";
+        chartTitle=QString("%1气温").arg(ui->comboLocation->currentText());
     }
     resetChart(chartTitle);
 
