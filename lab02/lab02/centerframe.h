@@ -18,7 +18,7 @@ class CenterFrame : public QFrame
      explicit CenterFrame(QWidget *parent=0);
 
      DrawWidget* insideWidget() const;
-
+     DrawWidget* drawWidget;
  protected:
 
      void createUserCommandArea();
@@ -47,7 +47,6 @@ class CenterFrame : public QFrame
  private:
      QVBoxLayout* vLayout;
      QHBoxLayout* hLayout;
-     DrawWidget* drawWidget;
      QGroupBox* group;
      QPushButton* btnRect;
      QPushButton* btnEllipse;

@@ -31,6 +31,8 @@ private:
     QToolButton *colorBtn;
     QToolButton *clearBtn;
     QToolButton *fileselect;
+    QToolButton *larger;
+    QToolButton *smaller;
 };
 
 #endif // MAINWINDOW_H

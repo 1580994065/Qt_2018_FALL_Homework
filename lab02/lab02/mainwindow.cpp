@@ -8,7 +8,7 @@
 #include <QToolButton>
 #include <QDebug>
 #include <QLayout>
-
+#include "drawwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -80,6 +80,14 @@ void MainWindow::createToolBar ()
     fileselect->setToolTip(tr("选择图片"));
     connect (fileselect, &QToolButton::clicked, centerFrame, &CenterFrame::selectFile);
 
+    larger=new QToolButton;
+    larger->setText("放大");
+    connect (larger, &QToolButton::clicked, centerFrame->drawWidget , &DrawWidget::largerSize);
+
+    smaller=new QToolButton;
+    smaller->setText("缩小");
+    connect (smaller, &QToolButton::clicked, centerFrame->drawWidget , &DrawWidget::smallarSize);
+
     // 向工具栏上添加各个控件
     toolBar->addWidget (styleLabel);
     toolBar->addWidget (styleComboBox);
@@ -89,6 +97,8 @@ void MainWindow::createToolBar ()
     toolBar->addWidget (fileselect);
     toolBar->addSeparator();
     toolBar->addWidget (clearBtn);
+    toolBar->addWidget(larger);
+    toolBar->addWidget(smaller);
 }
 
 void MainWindow::penStyleChangged (int index)

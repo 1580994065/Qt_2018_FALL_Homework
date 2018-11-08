@@ -36,6 +36,8 @@ public slots:
     void setWidth(int);
     void setColor(QColor);
     void clear();
+    void largerSize();
+    void smallarSize();
 
 private :
     QPixmap *imgmap;
@@ -48,7 +50,7 @@ private :
     QColor color;
     ST::ShapeType drawType;
     QString drawnText;
-
+    int size_imag=0;//图片大小
 };
 
 

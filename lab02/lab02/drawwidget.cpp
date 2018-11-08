@@ -18,10 +18,10 @@ DrawWidget::DrawWidget(QWidget *parent) : QWidget(parent)
     canDraw = false;
     setAutoFillBackground (true);   //设置窗体背景色
     setPalette (QPalette(BACKGROUND_COLOR));
-    pix = new QPixmap(size());      //此QPixmap对象用来准备随时接受绘制的内容
+    pix = new QPixmap(this->size());      //此QPixmap对象用来准备随时接受绘制的内容
     pix->fill (Qt::transparent);          //填充背景色为透明
     setMinimumSize (600, 400);      //设置绘制区窗体的最小尺寸
-    imgmap=new QPixmap(size());     //此QPixmap对象用来准备随时接受绘制的图片
+    imgmap=new QPixmap(this->size());     //此QPixmap对象用来准备随时接受绘制的图片
     imgmap->fill (Qt::transparent);          //填充背景色为透明
 }
 
@@ -108,7 +108,7 @@ void DrawWidget::paintEvent (QPaintEvent *)
 //    painter.drawPixmap(0,0,pix);
 
     //显示图片
-   painter.drawPixmap(this->width()/4,this->height()/4,this->width()/2,this->height()/2,*imgmap);
+   painter.drawPixmap((this->width()/4)-5*size_imag,this->height()/4-5*size_imag,(this->width()/2)+10*size_imag,this->height()/2+10*size_imag,*imgmap);
     painter.drawPixmap (QPoint(0, 0), *pix);
     //图片在后，线条在前，注意要将背景设置透明
 }
@@ -134,6 +134,18 @@ void DrawWidget::clear ()
     // 清除绘图内容，简单的用背景色填充整个画布即可
     pix->fill(Qt::transparent);
     imgmap->fill(Qt::transparent);
+    update ();
+}
+
+void DrawWidget::largerSize()
+{
+    size_imag++;
+    update();
+}
+
+void DrawWidget::smallarSize()
+{
+    size_imag--;
     update ();
 }
 

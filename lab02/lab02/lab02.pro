@@ -25,15 +25,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
+    centerframe.cpp \
     drawwidget.cpp \
-    centerframe.cpp
+    mainwindow.cpp
 
 HEADERS += \
         mainwindow.h \
-    drawwidget.h \
     common.h \
-    centerframe.h
+    centerframe.h \
+    drawwidget.h
 
 FORMS +=
 
