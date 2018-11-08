@@ -24,7 +24,7 @@ public:
     void setRequestLocation(int index);
     QString requestDate();
     void doRequest();
-
+    void getYrange(qreal* high,qreal* low);
 
 protected:
     QString requestUrl();
@@ -32,7 +32,8 @@ protected:
     void initNetwork();
     void parseHTML(const QString sourceText);
     void parseData(const QString sourceText);
-    void exportDataToFile(const QString dataText);
+    void exportDataToFile(const QString dataText,QString head="weather");
+    void Yrange();
 
 protected slots:
     void httpsFinished(QNetworkReply *reply);
@@ -43,9 +44,11 @@ private:
     QString _requestLocation;               //!< 请求地区
 
     QList<QDateTime> dataDate;              //!< 日期
-    QList<qreal> dataHigh;                  //!< 最高温度
-    QList<qreal> dataLow;                   //!< 最低温度
+    QList<qreal> dataHigh;                  //!< 最高温度，aqi
+    QList<qreal> dataLow;                   //!< 最低温度，pm2.5
 
+    qreal Yhigh=50;                            //y轴最大值
+    qreal Ylow=0;                             //y轴最小值
     const QString splitter;                 //!< 数据分隔符
     const QString dataPath;                 //!< 数据保存路径
 

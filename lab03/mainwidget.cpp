@@ -3,8 +3,9 @@
 #include <dataworker.h>
 #include <QDateTime>
 #include <QDate>
+#include "common.h"
 
-
+enum DataType datatype;
 /**
  * @brief 主窗口构造函数
  * @param parent 父窗口指针
@@ -18,6 +19,7 @@ mainWidget::mainWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->chartview->setRenderHint(QPainter::Antialiasing);
 
+
     initComboMonth();
 
     resetChart("请进行设置");
@@ -28,12 +30,7 @@ mainWidget::mainWidget(QWidget *parent) :
     connect(worker,&dataWorker::dataParseError,this,&mainWidget::on_dataError);
     connect(worker,&dataWorker::httpRequestError,this,&mainWidget::on_dataError);
 
-    //爬取pm2.5数据
-    /*worker_pm2=new dataWorker(this);
-    connect(worker_pm2,&dataWorker::dataParseFinished,this,&mainWidget::updateDataChart_pm2);
-    connect(worker_pm2,&dataWorker::dataParseError,this,&mainWidget::on_dataError);
-    connect(worker_pm2,&dataWorker::httpRequestError,this,&mainWidget::on_dataError);
-    */
+
 }
 
 mainWidget::~mainWidget()
@@ -141,8 +138,10 @@ void mainWidget::addLineSeries(QChart *chart, const QString &seriesName, const Q
         mAxisX->setTickCount(10+1);
         mAxisX->setRange(QDateTime::currentDateTime().addMonths(-1),QDateTime::currentDateTime());
 
+        qreal highest,lowest;
+        worker->getYrange(&highest,&lowest);
         QValueAxis *mAxisY = new QValueAxis;
-        mAxisY->setRange(-5,40);
+        mAxisY->setRange(lowest,highest);
         mAxisY->setLabelFormat("%g");
         mAxisY->setTitleText("摄氏度(°C)");
 
@@ -170,6 +169,15 @@ void mainWidget::connectMarkers()
         disconnect(marker, &QLegendMarker::clicked, this, &mainWidget::handleMarkerClicked);
         connect(marker, &QLegendMarker::clicked, this, &mainWidget::handleMarkerClicked);
     }
+}
+
+enum DataType mainWidget::getDataType()
+{
+    if(ui->radioButton->isChecked())
+        datatype=temperature;
+    else if(ui->radioButton_2->isChecked())
+        datatype=pm2;
+    return datatype;
 }
 
 /**
@@ -249,6 +257,9 @@ void mainWidget::on_btnStart_clicked()
     // 禁用两个按键
     ui->comboMonth->setEnabled(false);
     ui->btnStart->setEnabled(false);
+
+    //更新要查询数据类型标志位
+    getDataType();
 
     // 设置chart的标题
     QString chartTitle = "";

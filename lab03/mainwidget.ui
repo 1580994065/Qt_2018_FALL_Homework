@@ -114,6 +114,42 @@
       </widget>
      </item>
      <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>查询选项</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QRadioButton" name="radioButton">
+            <property name="toolTipDuration">
+             <number>-1</number>
+            </property>
+            <property name="text">
+             <string>查询气温</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <property name="autoRepeat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_2">
+            <property name="text">
+             <string>查询AQI</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnStart">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">

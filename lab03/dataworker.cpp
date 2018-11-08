@@ -1,7 +1,10 @@
 #include "dataworker.h"
 #include <QtNetwork>
 #include <QXmlStreamReader>
+#include "mainwidget.h"
+#include "common.h"
 
+extern enum DataType datatype;
 /**
  * @brief dataWorker::dataWorker 构造函数
  * @param parent
@@ -76,8 +79,18 @@ QString dataWorker::requestDate()
  */
 void dataWorker::doRequest()
 {
+    QString fName;
     // 导入数据，首先检查是否已经存在数据文件
-    QString fName = QString("%1/%2%3.txt").arg(dataPath,_requestLocation,_requestDate);
+    switch(datatype)
+    {
+        case temperature :fName =
+            QString("%1/weather_%2-%3.txt").arg(dataPath,_requestLocation,_requestDate);break;
+
+        case pm2 :fName =
+            QString("%1/pm2_%2-%3.txt").arg(dataPath,_requestLocation,_requestDate);break;
+        default:break;
+    };
+
 //    qDebug()<<fName;
     QStringList dataList;
     QFile f(fName);
@@ -96,6 +109,36 @@ void dataWorker::doRequest()
 }
 
 /**
+ * @brief dataWorker::getYrange
+ *         提供y坐标的范围
+ * @param high
+ * @param low
+ */
+void dataWorker::getYrange(qreal *high, qreal *low)
+{
+    *high=Yhigh;
+    *low=Ylow;
+}
+
+void dataWorker::Yrange()
+{
+    qreal temp=0;
+    for(qreal s:dataHigh)
+    {
+        if(temp<s)
+            temp=s;
+    }
+    Yhigh=temp+5;
+
+    for(qreal s:dataLow)
+    {
+        if(temp>s)
+            temp=s;
+    }
+    Ylow=temp-5;
+}
+
+/**
  * @brief 构造实际请求链接
  * @return 数据页面地址
  *
@@ -103,11 +146,20 @@ void dataWorker::doRequest()
  */
 QString dataWorker::requestUrl()
 {    
-    QString r =
-            QString("https://lishi.tianqi.com/%2/%1.html").arg(_requestDate,_requestLocation);
+    QString r;
+   if(datatype==temperature)
+   {
+            r = QString("https://lishi.tianqi.com/%2/%1.html").arg(_requestDate,_requestLocation);
     qDebug()<<r;
+   }
+   else if(datatype==pm2)
+   {
+            r=QString("http://www.tianqihoubao.com/aqi/%1-%2.html").arg(_requestLocation,_requestDate);
+            qDebug()<<r;
+   }
     return r;
 }
+
 
 /**
  * @brief 初始化网络请求管理类QNetworkAccessManager类
@@ -142,19 +194,28 @@ void dataWorker::parseHTML(const QString sourceText)
     while (!reader.atEnd()) {
         reader.readNext();
         if (reader.isStartElement()) {
-            if (reader.name() == "ul"){         // 查找Html标签：ul
-                strData<<reader.readElementText(QXmlStreamReader::IncludeChildElements).trimmed();
-            }
+            switch(datatype)
+            {
+                case temperature :if (reader.name() == "ul"){         // 查找Html标签：ul
+                    strData<<reader.readElementText(QXmlStreamReader::IncludeChildElements).trimmed();};break;
+                case pm2: if (reader.name() == "tr"){         // 查找Html标签：tr
+                    strData<<reader.readElementText(QXmlStreamReader::IncludeChildElements).trimmed();};break;
+                default:break;
+            };
+            qDebug()<<strData;
         }
     }
     if (reader.hasError()) {
         qDebug()<< "  读取错误： " << reader.errorString();
-    }else{
-        if(!strData.isEmpty()){
+   }else{
+        qDebug()<<"读取完成";
+    }//无论是否有错都要试着处理数据
+  if(!strData.isEmpty()){
             parseData(strData.join(splitter));
             exportDataToFile(strData.join(splitter));
+            qDebug()<<"数据非空";
         }
-    }
+
 
 }
 
@@ -179,9 +240,20 @@ void dataWorker::parseData(const QString sourceText)
         QStringList dataList = s.split(" ",QString::SkipEmptyParts);
         QDateTime momentInTime = QDateTime::fromString(dataList.at(0),"yyyy-MM-dd");
         dataDate.append(momentInTime);
-        dataHigh.append(dataList.at(1).toDouble());
-        dataLow.append(dataList.at(2).toDouble());
+        switch(datatype)
+        {
+            //temperature 的最高温度与最低温度分别在第2项与第3项
+            case temperature:dataHigh.append(dataList.at(1).toDouble());
+                    dataLow.append(dataList.at(2).toDouble());break;
+            //aqi在第三项，pm2.5在第五项
+            case pm2:dataHigh.append(dataList.at(2).toDouble());
+            dataLow.append(dataList.at(4).toDouble());break;
+        default:break;
+        };
+        qDebug()<<dataHigh;
     }
+    qDebug()<<"解析成功";
+    Yrange();//计算y轴范围
     emit dataParseFinished(dataDate,dataHigh,dataLow);
 }
 
@@ -191,14 +263,14 @@ void dataWorker::parseData(const QString sourceText)
  *
  * 该类使用QFile和QTextStream类实现文本的保存。
  */
-void dataWorker::exportDataToFile(const QString dataText)
+void dataWorker::exportDataToFile(const QString dataText,QString head)
 {
     QStringList data = dataText.split(splitter);
     QDir dir;
     if( ! dir.exists(dataPath) )
         qDebug()<<dir.mkdir(dataPath);
 
-    QString fName = QString("%1/%2%3.txt").arg(dataPath,_requestLocation,_requestDate);
+    QString fName = QString("%1/%2_%3-%4.txt").arg(dataPath,head,_requestLocation,_requestDate);
     QFile f(fName);
     if(f.open(QIODevice::WriteOnly|QIODevice::Text)){
         QTextStream stream (&f);
@@ -209,6 +281,8 @@ void dataWorker::exportDataToFile(const QString dataText)
     }
 
 }
+
+
 
 /**
  * @brief 执行http请求（GET方法）
@@ -261,10 +335,22 @@ void dataWorker::httpsFinished(QNetworkReply *reply)
 
     // 先做一个简单处理，将包含内容的完整<div>..</div>标签内的文本内容，
     // 并滤除其中的空白字符"\r\n\t"
-    int begin = html.indexOf("<div class=\"tqtongji2\">");
-    int end = html.indexOf("<div class=\"lishicity03\">");
-    html = html.mid(begin,end-begin);
-    html = html.left(html.indexOf("<div style=\"clear:both\">"));
+    int begin,end;
+    switch(datatype)
+    {
+    case temperature:
+        begin = html.indexOf("<div class=\"tqtongji2\">");
+        end = html.indexOf("<div class=\"lishicity03\">");
+        html = html.mid(begin,end-begin);
+        html = html.left(html.indexOf("<div style=\"clear:both\">"));
+        break;
+
+    case pm2:
+        begin = html.indexOf("<div class=\"api_month_list\">");
+        end = html.indexOf("<div id=\"chartdiv\" align=\"center\">");
+        html = html.mid(begin,end-begin);
+        html = html.left(html.indexOf("</div>"));
+    };
     html = html.simplified().trimmed();
 
     if (! html.isEmpty()){
