@@ -143,7 +143,13 @@ void mainWidget::addLineSeries(QChart *chart, const QString &seriesName, const Q
         QValueAxis *mAxisY = new QValueAxis;
         mAxisY->setRange(lowest,highest);
         mAxisY->setLabelFormat("%g");
-        mAxisY->setTitleText("摄氏度(°C)");
+        switch(datatype)
+        {
+            case temperature:mAxisY->setTitleText("摄氏度(°C)");break;
+        case pm2:mAxisY->setTitleText("数值");break;
+        default:break;
+        }
+
 
         chart->setAxisX(mAxisX,series);
         chart->setAxisY(mAxisY,series);
@@ -265,10 +271,16 @@ void mainWidget::on_btnStart_clicked()
     QString chartTitle = "";
     if(ui->comboMonth->count()>0){
         chartTitle = ui->comboMonth->currentText().replace("-","年");
-        chartTitle.append(QString("月 %1气温").arg(ui->comboLocation->currentText()));
+        chartTitle.append(QString("月 %1").arg(ui->comboLocation->currentText()));
     }else{
-        chartTitle=QString("%1气温").arg(ui->comboLocation->currentText());
+        chartTitle=QString("%1").arg(ui->comboLocation->currentText());
     }
+    switch(datatype)
+    {
+        case temperature:chartTitle.append("温度");break;
+    case pm2:chartTitle.append("空气情况");break;
+    default:break;
+    };
     resetChart(chartTitle);
 
     // 设置dataWorker对象的请求年月
@@ -295,12 +307,22 @@ void mainWidget::updateDataChart(QList<QDateTime> date, QList<qreal> tempHigh, Q
     QChart* chart = ui->chartview->chart();
 
     // 添加第一条数据曲线
-    addLineSeries(chart,"日最高温度",Qt::red,2);
+    switch(datatype)
+    {
+    case temperature:addLineSeries(chart,"日最高温度",Qt::red,2);break;
+    case pm2:addLineSeries(chart,"AQI数值",Qt::red,2);break;
+    default:break;
+    };
     QLineSeries* seriesHigh = qobject_cast<QLineSeries*> (chart->series().last());
     seriesHigh->setPointsVisible(ui->cbShowPoint->isChecked());
 
     // 添加第二条数据曲线
-    addLineSeries(chart,"日最低温度",Qt::blue,2);
+    switch(datatype)
+    {
+    case temperature:addLineSeries(chart,"日最低温度",Qt::blue,2);break;
+    case pm2:addLineSeries(chart,"PM2.5数值",Qt::blue,2);break;
+    default:break;
+    };
     QLineSeries* seriesLow = qobject_cast<QLineSeries*> (chart->series().last());
     seriesLow->setPointsVisible(ui->cbShowPoint->isChecked());
 

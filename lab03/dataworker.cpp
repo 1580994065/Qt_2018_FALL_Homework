@@ -269,8 +269,17 @@ void dataWorker::exportDataToFile(const QString dataText,QString head)
     QDir dir;
     if( ! dir.exists(dataPath) )
         qDebug()<<dir.mkdir(dataPath);
-
-    QString fName = QString("%1/%2_%3-%4.txt").arg(dataPath,head,_requestLocation,_requestDate);
+    QString fName;
+    switch(datatype)
+    {
+    case temperature:
+     fName= QString("%1/weather_%3-%4.txt").arg(dataPath,_requestLocation,_requestDate);
+    break;
+    case pm2:
+        fName=QString("%1/pm2_%3-%4.txt").arg(dataPath,_requestLocation,_requestDate);
+    break;
+    default:break;
+    }
     QFile f(fName);
     if(f.open(QIODevice::WriteOnly|QIODevice::Text)){
         QTextStream stream (&f);
