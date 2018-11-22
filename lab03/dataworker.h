@@ -4,8 +4,12 @@
 #include <QObject>
 #include <QDateTime>
 
+#define time_net_request_out 5000 //5s
+
 class QNetworkAccessManager;
 class QNetworkReply;
+class QTimer;
+class time_count;
 
 /**
  * @brief dataWorker类
@@ -20,12 +24,13 @@ class dataWorker : public QObject
 public:
     explicit dataWorker(QObject *parent = 0);
     explicit dataWorker(QString date, QObject *parent = 0);
+    ~dataWorker();
     void setRequestDate(QString newDate);
     void setRequestLocation(int index);
     QString requestDate();
     void doRequest();
     void getYrange(qreal* high,qreal* low);
-
+    QString geturl();
 protected:
     QString requestUrl();
     void httpGet(QString url);
@@ -51,7 +56,9 @@ private:
     qreal Ylow=0;                             //y轴最小值
     const QString splitter;                 //!< 数据分隔符
     const QString dataPath;                 //!< 数据保存路径
-
+    QString url;                            //请求的url
+    QTimer *m_timer_worning;                      //警告定时器
+    time_count *m_timer_count;                    //计时器
 signals:
     /**
      * @brief 数据解析完成信号
@@ -80,8 +87,9 @@ signals:
      * 数据解析错误信号，当出现使用QXmlStreamReader解析数据错误时，发送该信号
      */
     void dataParseError(QString error);
-
+    void statusFlash(QString file); //更新状态图片
 public slots:
+    void handleTimeout();
 };
 
 

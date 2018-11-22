@@ -110,6 +110,7 @@ void DrawWidget::paintEvent (QPaintEvent *)
     //显示图片
    painter.drawPixmap((this->width()/4)-5*size_imag,this->height()/4-5*size_imag,(this->width()/2)+10*size_imag,this->height()/2+10*size_imag,*imgmap);
     painter.drawPixmap (QPoint(0, 0), *pix);
+
     //图片在后，线条在前，注意要将背景设置透明
 }
 

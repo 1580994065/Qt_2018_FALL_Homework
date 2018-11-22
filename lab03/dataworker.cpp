@@ -3,8 +3,10 @@
 #include <QXmlStreamReader>
 #include "mainwidget.h"
 #include "common.h"
+#include "time_count.h"
 
 extern enum DataType datatype;
+enum SourceType sourcetype;
 /**
  * @brief dataWorker::dataWorker 构造函数
  * @param parent
@@ -31,6 +33,12 @@ dataWorker::dataWorker(QString date, QObject *parent) :
 {
     _requestDate= date.replace("-","");
     initNetwork();
+}
+
+dataWorker::~dataWorker()
+{
+    manager->deleteLater();
+    m_timer_worning->deleteLater();
 }
 
 /**
@@ -96,6 +104,10 @@ void dataWorker::doRequest()
     QFile f(fName);
     if(f.open(QIODevice::ReadOnly|QIODevice::Text)){  // 成功打开数据文件，则由文件中读取
         qDebug().noquote()<<QString("数据由文件%1导入...").arg(fName);
+        sourcetype=file;
+
+        emit statusFlash(":/resorce/file.jpg");
+
         QTextStream stream (&f);
         while(!stream.atEnd())
              dataList<<stream.readLine();
@@ -103,6 +115,10 @@ void dataWorker::doRequest()
         parseData(dataList.join(splitter).simplified());
     }else{
         // 如果无数据文件，则从网络获取
+        sourcetype=net;
+
+        emit statusFlash(":/resorce/net.jpg");
+
         qDebug().noquote()<<QString("数据由网络获取...");
         httpGet(requestUrl());
     }
@@ -118,6 +134,11 @@ void dataWorker::getYrange(qreal *high, qreal *low)
 {
     *high=Yhigh;
     *low=Ylow;
+}
+
+QString dataWorker::geturl()
+{
+    return url;
 }
 
 void dataWorker::Yrange()
@@ -150,11 +171,13 @@ QString dataWorker::requestUrl()
    if(datatype==temperature)
    {
             r = QString("https://lishi.tianqi.com/%2/%1.html").arg(_requestDate,_requestLocation);
+            url=r;
     qDebug()<<r;
    }
    else if(datatype==pm2)
    {
             r=QString("http://www.tianqihoubao.com/aqi/%1-%2.html").arg(_requestLocation,_requestDate);
+            url=r;
             qDebug()<<r;
    }
     return r;
@@ -170,6 +193,12 @@ void dataWorker::initNetwork()
 {
     manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished,this, &dataWorker::httpsFinished);
+
+    m_timer_worning=new QTimer(this);
+    connect(m_timer_worning, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+
+    m_timer_count=new time_count();
+    m_timer_count->init();
 }
 
 /**
@@ -202,11 +231,13 @@ void dataWorker::parseHTML(const QString sourceText)
                     strData<<reader.readElementText(QXmlStreamReader::IncludeChildElements).trimmed();};break;
                 default:break;
             };
-            qDebug()<<strData;
+//            qDebug()<<strData;
         }
     }
     if (reader.hasError()) {
         qDebug()<< "  读取错误： " << reader.errorString();
+        //弹出对话框让用户知道警告
+        QMessageBox::warning(NULL, "warning", reader.errorString(), QMessageBox::Yes);
    }else{
         qDebug()<<"读取完成";
     }//无论是否有错都要试着处理数据
@@ -250,7 +281,7 @@ void dataWorker::parseData(const QString sourceText)
             dataLow.append(dataList.at(4).toDouble());break;
         default:break;
         };
-        qDebug()<<dataHigh;
+//        qDebug()<<dataHigh;
     }
     qDebug()<<"解析成功";
     Yrange();//计算y轴范围
@@ -301,6 +332,14 @@ void dataWorker::httpGet(QString url)
 {
     QNetworkRequest request;
     request.setUrl(QUrl(url));
+
+    m_timer_worning->setTimerType(Qt::VeryCoarseTimer);//不精确时钟
+    m_timer_worning->start(time_net_request_out);
+
+    m_timer_count->init();
+    m_timer_count->start();
+
+    qDebug()<<"开始计时";
     manager->get(request);
 }
 
@@ -311,6 +350,15 @@ void dataWorker::httpGet(QString url)
  */
 void dataWorker::httpsFinished(QNetworkReply *reply)
 {
+
+    m_timer_count->stop();//停止计时
+
+    if(m_timer_worning->isActive())
+        m_timer_worning->stop();
+
+    QMessageBox::information(NULL, "完成响应", QString("数据由网络获取，响应时间为%1ms").arg(m_timer_count->getInterval()), QMessageBox::Yes);
+
+
     int v = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     QString error="";
     if (reply->error()) {
@@ -370,5 +418,14 @@ void dataWorker::httpsFinished(QNetworkReply *reply)
         emit dataParseError(QString("HTML内容为空"));
     }
 
+}
+
+void dataWorker::handleTimeout()
+{
+    QMessageBox::warning(NULL, "warning", "响应时间已超过5秒，请检查网络连接", QMessageBox::Yes);
+    //失能时钟
+    if(m_timer_worning->isActive()){
+            m_timer_worning->stop();
+        }
 }
 

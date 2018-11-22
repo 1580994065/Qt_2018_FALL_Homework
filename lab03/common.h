@@ -7,4 +7,10 @@ enum DataType
     pm2=1
 };
 
+enum SourceType
+{
+    file=0,
+    net=1
+};
+
 #endif // COMMON_H
