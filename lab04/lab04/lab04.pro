@@ -1,14 +1,14 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-10-21T17:02:42
+# Project created by QtCreator 2018-11-28T19:11:51
 #
 #-------------------------------------------------
 
 QT       += core gui
-
+QT       += sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = lab02
+TARGET = lab04
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -25,19 +25,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    centerframe.cpp \
-    drawwidget.cpp \
-    mainwindow.cpp
+        mainwindow.cpp \
+    dataworker.cpp
 
 HEADERS += \
         mainwindow.h \
     common.h \
-    centerframe.h \
-    drawwidget.h
+    dataworker.h
 
-FORMS +=
-
-DISTFILES +=
-
-RESOURCES += \
-    resource/img.qrc
+FORMS += \
+        mainwindow.ui
