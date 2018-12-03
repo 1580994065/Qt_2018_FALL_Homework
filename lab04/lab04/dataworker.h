@@ -19,6 +19,7 @@ private:
 QSqlQuery *test;
     QMap<QString,QStringList *> m_data;   //存储得到的数据 有学生信息和课程信息
     QStringList column_map;             //与map配合使用，为列头 课程名称，成绩，学分 姓名，学号，年级，专业
+    QString leveltrans(QStringList *score,QStringList *credit);
 signals:
     void updat_chart(QMap<QString,QStringList *> *m_data);//更新主界面图表
 public slots:
