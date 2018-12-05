@@ -26,12 +26,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    dataworker.cpp
+    dataworker.cpp \
+    welcome.cpp
 
 HEADERS += \
         mainwindow.h \
     common.h \
-    dataworker.h
+    dataworker.h \
+    welcome.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    welcome.ui

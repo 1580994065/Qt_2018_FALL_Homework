@@ -1,6 +1,8 @@
 #include "dataworker.h"
 #include <QMessageBox>
 
+extern enum RESOURCE resource; //查询数据来源选项
+
 DataWorker::DataWorker(QObject *parent) : QObject(parent)
 {
         db=QSqlDatabase::addDatabase("QMYSQL");
@@ -29,7 +31,26 @@ DataWorker::~DataWorker()
 
 void DataWorker::search(QString search_arg, SEARCH_OPTION m_option)
 {
-    QString str;
+
+    switch (resource) {
+    case STU_SQL:
+        qDebug()<<"在sql中搜索";
+        search_in_sql(search_arg,m_option);
+        break;
+    case STU_FILE:
+        qDebug()<<"在文件中搜索";
+        search_in_file(search_arg);
+        break;
+    default:
+        break;
+    }
+
+}
+
+//sql内搜索
+void DataWorker::search_in_sql(QString search_arg,SEARCH_OPTION m_option)
+{
+     QString str;
     switch(m_option)
     {
     case STU_NAME:str=QString("where sName ='%1'").arg(search_arg);break;
@@ -69,17 +90,16 @@ void DataWorker::search(QString search_arg, SEARCH_OPTION m_option)
             }
 
             //构造map
-            m_data.insert("课程名称",&course_Name);
-            m_data.insert("成绩",&scScores);
-            m_data.insert("学分",&courseCredit);
+            m_data.insert("课程名称",course_Name);
+            m_data.insert("成绩",scScores);
+            m_data.insert("学分",courseCredit);
             QStringList temp;
             temp.append(leveltrans(m_data.value("成绩"),m_data.value("学分")));
-            m_data.insert("gpa",&temp);
-            emit updat_chart(&m_data);//更新图表
+            m_data.insert("gpa",temp);
         }
 
     //得到学生信息
-    m_qrl = QString("select * from t_stud_info %1").arg(str);
+    m_qrl = QString("select sNumber,sName,sMajor,sClass from t_stud_info %1").arg(str);
 
        if(!db_q.exec(m_qrl))
        {
@@ -87,35 +107,82 @@ void DataWorker::search(QString search_arg, SEARCH_OPTION m_option)
        }
        else
        {
-           QStringList temp1,temp2,temp3,temp4;
-           while(db_q.next())
-           {
+            QStringList temp1,temp2,temp3,temp4;
+            db_q.next();
                temp1.append(db_q.value(0).toString());
                temp2.append(db_q.value(1).toString());
                temp3.append(db_q.value(2).toString());
                temp4.append(db_q.value(3).toString());
-               m_data.insert("学号",&temp1);
-               m_data.insert("姓名",&temp2);
-               m_data.insert("专业",&temp3);
-               m_data.insert("年级",&temp4);
-           }
+               m_data.insert("学号",temp1);
+               m_data.insert("姓名",temp2);
+               m_data.insert("专业",temp3);
+               m_data.insert("年级",temp4);
        }
+       emit updat_chart(&m_data);//更新图表
 }
 
-QString DataWorker::leveltrans(QStringList *score,QStringList *credit)
+void DataWorker::search_in_file(QString search_arg)
+{
+    QString temp;
+    //遍历搜索
+    for(int i=0;i<file_input.size();i++)
+    {
+        temp=file_input.at(i);
+        if(temp.contains(search_arg))
+        {
+
+            QStringList stu_num,stu_name,stu_major,stu_grade;
+
+            QStringList split_list=temp.split(",",QString::SkipEmptyParts);
+            stu_num.append(split_list.at(1));
+            stu_name.append(split_list.at(2));
+            stu_major.append(split_list.at(3));
+            stu_grade.append(split_list.at(4));
+            m_data.insert("学号",stu_num);
+            m_data.insert("姓名",stu_name);
+            m_data.insert("专业",stu_major);
+            m_data.insert("年级",stu_grade);
+
+             QStringList course_Name,scScores,courseCredit;
+            //读取表头
+            QStringList split_title=file_input.at(1).split(",",QString::SkipEmptyParts);
+            //动态增加成绩
+            for(int i=0;i<(split_title.size()-5);i++)
+            {
+                course_Name.append(split_title.at(5+i));
+                scScores.append(split_list.at(5+i));
+                courseCredit.append("未知");
+            }
+            m_data.insert("课程名称",course_Name);
+            m_data.insert("成绩",scScores);
+            m_data.insert("学分",courseCredit);
+            m_data.insert("gpa",QStringList("未知"));
+            qDebug()<<m_data;
+            emit updat_chart(&m_data);//更新图表
+            return;
+        }
+    }
+
+    //遍历结束，没有查询到
+    QMessageBox::warning(NULL
+                         , "warning"
+                         , "未查询到数据"
+                         , QMessageBox::Yes);//查询失败跳出对话框
+}
+QString DataWorker::leveltrans(QStringList score,QStringList credit)
 {
 
     QStringList leaveList;
     leaveList<<"优秀"<<"良好"<<"中等"<<"及格"<<"不及格"<<"缓考"<<"旷考";
     double myPoint=0;
     double sum=0;
-    for(int i=0;i<score->size();i++)
+    for(int i=0;i<score.size();i++)
     {
-        QString toscore=score->at(i);
-        QString mycredit=credit->at(i);
-        if (leaveList.contains(score->at(i)))
+        QString toscore=score.at(i);
+        QString mycredit=credit.at(i);
+        if (leaveList.contains(score.at(i)))
         {
-            switch (leaveList.indexOf(score->at(i)))
+            switch (leaveList.indexOf(score.at(i)))
             {
             case 0:                     // 优秀
                 toscore= "95";
@@ -155,4 +222,11 @@ QString DataWorker::leveltrans(QStringList *score,QStringList *credit)
     double avg=myPoint/sum;
     QString s = QString::number(avg);
     return s;
+}
+
+
+
+void DataWorker::mfile_input(QStringList inputdata)
+{
+    file_input=inputdata;
 }

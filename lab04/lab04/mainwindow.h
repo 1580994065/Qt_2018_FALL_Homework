@@ -16,13 +16,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+    DataWorker* getDataworker();
 private slots:
     void on_pushButton_search_clicked();
     void on_radioButton_num_clicked();
     void on_radioButton_name_clicked();
 
-    void table_updata(QMap<QString,QStringList *> *m_data);
+    void table_updata(QMap<QString,QStringList> *m_data);
 private:
     Ui::MainWindow *ui;
     DataWorker *dataworker;
