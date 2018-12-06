@@ -27,14 +27,17 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     dataworker.cpp \
-    welcome.cpp
+    welcome.cpp \
+    add_student.cpp
 
 HEADERS += \
         mainwindow.h \
     common.h \
     dataworker.h \
-    welcome.h
+    welcome.h \
+    add_student.h
 
 FORMS += \
         mainwindow.ui \
-    welcome.ui
+    welcome.ui \
+    add_student.ui

@@ -5,6 +5,8 @@ extern enum RESOURCE resource; //查询数据来源选项
 
 DataWorker::DataWorker(QObject *parent) : QObject(parent)
 {
+    switch (resource) {
+    case STU_SQL:
         db=QSqlDatabase::addDatabase("QMYSQL");
         db.setHostName("localhost");
         db.setPort(3306);
@@ -20,6 +22,15 @@ DataWorker::DataWorker(QObject *parent) : QObject(parent)
         }
 
         db_q=QSqlQuery(db);//设置操作对象
+
+        break;
+    case STU_FILE:
+
+        break;
+    default:
+        break;
+    }
+
 }
 
 DataWorker::~DataWorker()
@@ -45,6 +56,11 @@ void DataWorker::search(QString search_arg, SEARCH_OPTION m_option)
         break;
     }
 
+}
+
+QMap<QString, QStringList> *DataWorker::get_data()
+{
+    return &m_data;
 }
 
 //sql内搜索
@@ -229,4 +245,10 @@ QString DataWorker::leveltrans(QStringList score,QStringList credit)
 void DataWorker::mfile_input(QStringList inputdata)
 {
     file_input=inputdata;
+    QStringList mclass=file_input.at(1).split(",",QString::SkipEmptyParts);
+
+    for(int i=0;i<5;i++)
+    mclass.removeFirst();//只保留课程
+
+    m_data.insert("预读课程",mclass);//提供给添加数据界面使用
 }

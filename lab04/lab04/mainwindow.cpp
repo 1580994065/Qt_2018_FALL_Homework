@@ -91,3 +91,10 @@ void MainWindow::table_updata(QMap<QString, QStringList> *m_data)
        ui->lineEdit_stu_major->setText(m_data->value("专业").at(0));
        ui->lineEdit_stu_gread->setText(m_data->value("年级").at(0)) ;
 }
+//添加数据
+void MainWindow::on_pushButton_adddata_clicked()
+{
+    add=new add_student(dataworker->get_data());
+    add->setWindowTitle("添加数据");
+    add->show();
+}

@@ -13,6 +13,7 @@ public:
     explicit DataWorker(QObject *parent = nullptr);
     ~DataWorker();
     void search(QString search_arg,enum SEARCH_OPTION m_option);   //搜索
+    QMap<QString, QStringList> *get_data();//返回数据map
 private:
     QSqlDatabase db;    //数据库对象
     QSqlQuery db_q;     //数据库操作对象
