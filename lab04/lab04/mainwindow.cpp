@@ -95,6 +95,7 @@ void MainWindow::table_updata(QMap<QString, QStringList> *m_data)
 void MainWindow::on_pushButton_adddata_clicked()
 {
     add=new add_student(dataworker->get_data());
+    connect(add,&add_student::add_stu_data,dataworker,&DataWorker::do_add_stu_data);
     add->setWindowTitle("添加数据");
     add->show();
 }

@@ -252,3 +252,9 @@ void DataWorker::mfile_input(QStringList inputdata)
 
     m_data.insert("预读课程",mclass);//提供给添加数据界面使用
 }
+
+//添加数据，信号来自add_student界面
+void DataWorker::do_add_stu_data(QStringList *mClass, QMap<QString, QString> *add_data)
+{
+
+}

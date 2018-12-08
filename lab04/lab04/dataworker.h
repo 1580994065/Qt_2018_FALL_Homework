@@ -29,6 +29,7 @@ signals:
     void updat_chart(QMap<QString,QStringList> *m_data);//更新主界面图表
 public slots:
     void mfile_input(QStringList inputdata);
+    void do_add_stu_data(QStringList *mClass,QMap<QString,QString> *add_data);
 };
 
 #endif // DATAWORKER_H
