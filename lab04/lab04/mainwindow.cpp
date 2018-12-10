@@ -55,6 +55,7 @@ DataWorker *MainWindow::getDataworker()
 void MainWindow::table_updata(QMap<QString, QStringList> *m_data)
 {
     qDebug()<<"更新图表";
+    qDebug()<<*m_data;
     QString temp;
 
        //cellpadding规定单元边沿与其内容之间的空白。

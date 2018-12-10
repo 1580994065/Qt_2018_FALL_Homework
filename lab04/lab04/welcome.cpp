@@ -58,6 +58,6 @@ void welcome::on_file_source_button_clicked()
     main_window=new MainWindow();//转入主界面
     //发送信号，通知更新读取文件
     connect(this,&welcome::file_geted,main_window->getDataworker(),DataWorker::mfile_input);
-    emit file_geted(tempText);
+    emit file_geted(tempText,path);
     main_window->setWindowTitle("学生数据查询");
 }

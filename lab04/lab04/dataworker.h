@@ -17,18 +17,18 @@ public:
 private:
     QSqlDatabase db;    //数据库对象
     QSqlQuery db_q;     //数据库操作对象
-    QSqlQuery *test;
     QMap<QString,QStringList> m_data;   //存储得到的数据 有学生信息和课程信息
     QStringList column_map;             //与map配合使用，为列头 课程名称，成绩，学分 姓名，学号，年级，专业
     QString leveltrans(QStringList score,QStringList credit);//计算平均绩点
     QStringList file_input;
+    QString file_path;  //读取文件的路径
 
     void search_in_sql(QString search_arg,SEARCH_OPTION m_option);  //在sql中搜索
     void search_in_file(QString search_arg); //在文件中搜索
 signals:
     void updat_chart(QMap<QString,QStringList> *m_data);//更新主界面图表
 public slots:
-    void mfile_input(QStringList inputdata);
+    void mfile_input(QStringList inputdata,QString path);
     void do_add_stu_data(QStringList *mClass,QMap<QString,QString> *add_data);
 };
 

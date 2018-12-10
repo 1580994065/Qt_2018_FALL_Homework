@@ -26,7 +26,7 @@ private:
     Ui::welcome *ui;
     MainWindow *main_window;
 signals:
-    void file_geted(QStringList data);
+    void file_geted(QStringList data,QString path);
 };
 
 #endif // WELCOME_H

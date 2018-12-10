@@ -29,6 +29,10 @@ private slots:
     void on_lineEdit_score_editingFinished();
 
     void on_buttonBox_accepted();
+    void on_lineEdit_year_editingFinished();
+
+    void on_lineEdit_tel_editingFinished();
+
 signals:
     void add_stu_data(QStringList *mClass,QMap<QString,QString> *add_data);
 private:

@@ -1,5 +1,8 @@
 #include "add_student.h"
 #include "ui_add_student.h"
+#include "common.h"
+
+extern enum RESOURCE resource; //查询数据来源选项
 
 add_student::add_student(QWidget *parent) :
     QDialog(parent),
@@ -10,6 +13,8 @@ add_student::add_student(QWidget *parent) :
     add_data.insert("学号",QString(""));
     add_data.insert("专业",QString(""));
     add_data.insert("年级",QString(""));
+    add_data.insert("入学年份",QString(""));
+    add_data.insert("联系电话",QString(""));
 }
 
 add_student::add_student(QMap<QString, QStringList> *data, QWidget *parent):
@@ -19,7 +24,19 @@ add_student::add_student(QMap<QString, QStringList> *data, QWidget *parent):
     ui->setupUi(this);
     //设置字体
     ui->textEdit->setCurrentFont(QFont("Times", 15, QFont::Bold));
-    mClass=data->value("预读课程");
+    //初始化课程
+    switch (resource) {
+    case STU_FILE:
+        mClass=data->value("预读课程");
+        break;
+    case STU_SQL:
+        mClass<<"复变函数"<<"毛泽东思想和中国特色社会主义理论体系概论"<<"大学物理B-2"<<"大学体育-3"
+             <<"模拟电子线路"<<"信号与系统"<<"模拟电子线路课程设计";
+        break;
+    default:
+        break;
+    }
+
     qDebug()<<mClass;
     ui->comboBox_class->addItems(mClass);//添加课程
     //初始化map
@@ -31,6 +48,8 @@ add_student::add_student(QMap<QString, QStringList> *data, QWidget *parent):
     add_data.insert("学号",QString(""));
     add_data.insert("专业",QString(""));
     add_data.insert("年级",QString(""));
+    add_data.insert("入学年份",QString(""));
+    add_data.insert("联系电话",QString(""));
 }
 
 add_student::~add_student()
@@ -40,6 +59,7 @@ add_student::~add_student()
 
 void add_student::update_textView()
 {
+    ui->lineEdit_score->clear();
     ui->textEdit->clear();
     if(!add_data.value("姓名").isEmpty())
     {
@@ -56,6 +76,14 @@ void add_student::update_textView()
     if(!add_data.value("年级").isEmpty())
     {
         ui->textEdit->append(QString("年级："+add_data.value("年级")));
+    }
+    if(!add_data.value("入学年份").isEmpty())
+    {
+        ui->textEdit->append(QString("入学年份："+add_data.value("入学年份")));
+    }
+    if(!add_data.value("联系电话").isEmpty())
+    {
+        ui->textEdit->append(QString("联系电话："+add_data.value("联系电话")));
     }
     for(int i=0;i<mClass.size();i++)
     {
@@ -99,4 +127,16 @@ void add_student::on_buttonBox_accepted()
 {
 
     emit add_stu_data(&mClass,&add_data);
+}
+
+void add_student::on_lineEdit_year_editingFinished()
+{
+    add_data["入学年份"]=ui->lineEdit_year->text();
+    update_textView();
+}
+
+void add_student::on_lineEdit_tel_editingFinished()
+{
+    add_data["联系电话"]=ui->lineEdit_tel->text();
+    update_textView();
 }

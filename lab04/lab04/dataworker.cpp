@@ -242,8 +242,9 @@ QString DataWorker::leveltrans(QStringList score,QStringList credit)
 
 
 
-void DataWorker::mfile_input(QStringList inputdata)
+void DataWorker::mfile_input(QStringList inputdata,QString path)
 {
+    file_path=path;
     file_input=inputdata;
     QStringList mclass=file_input.at(1).split(",",QString::SkipEmptyParts);
 
@@ -257,4 +258,122 @@ void DataWorker::mfile_input(QStringList inputdata)
 void DataWorker::do_add_stu_data(QStringList *mClass, QMap<QString, QString> *add_data)
 {
 
+    switch (resource) {
+    case STU_FILE:
+    {
+        QFile file(file_path);
+        QTextStream out(&file);
+              int line=0;
+              if (!file.open(QIODevice::ReadWrite | QIODevice::Text| QIODevice::Append))
+                  return;
+              out<<"后加,"<<line<<","<<add_data->value("学号")<<","<<add_data->value("姓名")
+                <<","<<add_data->value("专业")<<","<<add_data->value("班级")<<",";
+              for(int i=0;i<mClass->size();i++)
+              {
+                  out<<add_data->value(mClass->at(i));
+                  if(i<(mClass->size()-1))    //最后一个不输出,
+                      out<<",";
+                  else
+                      out<<"\n";
+              }
+    }
+        break;
+    case STU_SQL:
+    {
+        QString sql_code;
+        //添加学生信息
+        sql_code=QString("insert into t_stud_info (sNumber,sName,sMajor,sClass)"
+                         "values ('%1','%2','%3','%4');").arg(add_data->value("学号"),
+                                                             add_data->value("姓名"),
+                                                             add_data->value("专业"),
+                                                             add_data->value("年级"));
+        if(!db_q.exec(sql_code))
+                    {
+                        qDebug()<<db_q.lastError();
+                        QMessageBox::warning(NULL
+                                             , "warning"
+                                             , "添加失败"
+                                             , QMessageBox::Yes);//失败跳出对话框
+                        return;
+                    }
+
+
+        //添加课程信息
+        for(int i=0;i<mClass->size();i++)
+                {
+                    QString courseID;
+                    sql_code = QString("select courseID from t_courses where courseName='%1';").arg(mClass->at(i));
+
+                    if(!db_q.exec(sql_code))
+                    {
+                        qDebug()<<db_q.lastError();
+                    }
+                    else
+                    {
+                        while(db_q.next())
+                        {
+                            courseID=db_q.value(0).toString();
+
+                        }
+                    }
+
+                    sql_code = QString("insert into t_stud_course_info"
+                                       "(scNumber,scCourseID,scScores)"
+                                       " values ('%1','%2','%3');").arg(add_data->value("学号")
+                                                                       ,courseID
+                                                                       ,add_data->value(mClass->at(i)));
+
+                    if(!db_q.exec(sql_code))
+                    {
+                        qDebug()<<db_q.lastError();
+                    }
+                    else
+                    {
+                        qDebug()<<"插入成功";
+                    }
+                 }
+    }
+        break;
+    default:
+        break;
+    }
+    m_data=*new QMap<QString,QStringList>;
+    m_data.insert("姓名",QStringList(add_data->value("姓名")));
+    m_data.insert("学号",QStringList(add_data->value("学号")));
+    m_data.insert("专业",QStringList(add_data->value("专业")));
+    m_data.insert("年级",QStringList(add_data->value("年级")));
+
+    m_data.insert("课程名称",*mClass);
+    //添加成绩
+    QStringList m_score;
+    for(int i=0;i<mClass->size();i++)
+        m_score.append(add_data->value(mClass->at(i)));
+    m_data.insert("成绩",m_score);
+
+    QString sql_code;
+    QStringList m_credit;//各个课程学分
+    for(int i=0;i<mClass->size();i++)
+    {
+        sql_code=QString("SELECT courseCredit FROM t_courses where courseName='%1';").arg(mClass->at(i));
+
+    if(!db_q.exec(sql_code))
+                {
+                    qDebug()<<db_q.lastError();
+                    QMessageBox::warning(NULL
+                                         , "warning"
+                                         , "添加失败"
+                                         , QMessageBox::Yes);//失败跳出对话框
+                    return;
+                }
+    else    //
+    {
+        while(db_q.next())
+        {
+            m_credit<<db_q.value(0).toString();
+        }
+    }
+    }
+    m_data.insert("学分",m_credit);
+    m_data.insert("gpa",QStringList(leveltrans(m_score,m_credit)));
+    emit updat_chart(&m_data);//更新图表
 }
