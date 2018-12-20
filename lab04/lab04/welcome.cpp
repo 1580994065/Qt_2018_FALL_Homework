@@ -10,6 +10,10 @@ welcome::welcome(QWidget *parent) :
     ui(new Ui::welcome)
 {
     ui->setupUi(this);
+    setAutoFillBackground(true);
+        QPalette pal = this->palette();
+        pal.setBrush(backgroundRole(), QPixmap(":/back.jpg").scaled(this->size()));
+        setPalette(pal);
 }
 
 welcome::~welcome()

@@ -41,3 +41,9 @@ FORMS += \
         mainwindow.ui \
     welcome.ui \
     add_student.ui
+
+RESOURCES += \
+    resource.qrc
+
+DISTFILES += \
+    back.jpg

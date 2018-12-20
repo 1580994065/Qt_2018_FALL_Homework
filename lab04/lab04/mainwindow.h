@@ -27,6 +27,8 @@ private slots:
     void table_updata(QMap<QString,QStringList> *m_data);
     void on_pushButton_adddata_clicked();
 
+    void on_pushButton_output_sql_clicked();
+
 private:
     Ui::MainWindow *ui;
     DataWorker *dataworker;
